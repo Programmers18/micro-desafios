@@ -1,6 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { DesafiosService } from './desafios.service';
 import { Desafio } from './interfaces/desafio.interface';
+import { DesafiosErrorManager } from './desafios-error.handler';
 import {
     EventPattern,
     Payload,
@@ -9,11 +10,12 @@ import {
     MessagePattern,
 } from '@nestjs/microservices';
 
-const ackErrors: string[] = ['E11000'];
-
 @Controller()
 export class DesafiosController {
-    constructor(private readonly desafiosService: DesafiosService) {}
+    constructor(
+        private readonly desafiosService: DesafiosService,
+        private readonly desafiosErrorManager: DesafiosErrorManager,
+    ) {}
 
     private readonly logger = new Logger(DesafiosController.name);
 
@@ -30,12 +32,7 @@ export class DesafiosController {
             await channel.ack(originalMsg);
         } catch (error) {
             this.logger.log(`error: ${JSON.stringify(error.message)}`);
-            const filterAckError = ackErrors.filter((ackError) =>
-                error.message.includes(ackError),
-            );
-            if (filterAckError.length > 0) {
-                await channel.ack(originalMsg);
-            }
+            this.desafiosErrorManager.handler(error, channel, originalMsg);
         }
     }
 
@@ -74,12 +71,7 @@ export class DesafiosController {
             await this.desafiosService.atualizarDesafio(_id, desafio);
             await channel.ack(originalMsg);
         } catch (error) {
-            const filterAckError = ackErrors.filter((ackError) =>
-                error.message.includes(ackError),
-            );
-            if (filterAckError.length > 0) {
-                await channel.ack(originalMsg);
-            }
+            this.desafiosErrorManager.handler(error, channel, originalMsg);
         }
     }
 
@@ -100,12 +92,7 @@ export class DesafiosController {
             );
             await channel.ack(originalMsg);
         } catch (error) {
-            const filterAckError = ackErrors.filter((ackError) =>
-                error.message.includes(ackError),
-            );
-            if (filterAckError.length > 0) {
-                await channel.ack(originalMsg);
-            }
+            this.desafiosErrorManager.handler(error, channel, originalMsg);
         }
     }
 
@@ -121,12 +108,7 @@ export class DesafiosController {
             await channel.ack(originalMsg);
         } catch (error) {
             this.logger.log(`error: ${JSON.stringify(error.message)}`);
-            const filterAckError = ackErrors.filter((ackError) =>
-                error.message.includes(ackError),
-            );
-            if (filterAckError.length > 0) {
-                await channel.ack(originalMsg);
-            }
+            this.desafiosErrorManager.handler(error, channel, originalMsg);
         }
     }
 }

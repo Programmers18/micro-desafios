@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DesafiosController } from './desafios.controller';
 import { DesafiosService } from './desafios.service';
 import { DesafioSchema } from './interfaces/desafio.schema';
+import { DesafiosErrorManager } from './desafios-error.handler';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { DesafioSchema } from './interfaces/desafio.schema';
     ])
   ],
   controllers: [DesafiosController],
-  providers: [DesafiosService]
+  providers: [DesafiosService, DesafiosErrorManager]
 })
 export class DesafiosModule {}
